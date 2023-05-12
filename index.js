@@ -26,8 +26,6 @@ app.post("/chat", async (req, res) => {
     title:req.body.query
   })
 
-  console.log("Chatxxx : ", chat);
-
   openai
     .createCompletion({
       model: "text-davinci-003",
@@ -58,8 +56,6 @@ app.post("/image-gen", async (req, res) => {
   const image = await Image.create({
     title:req.body.prompt
   })
-
-  console.log("Imagexxx : ", image);
 
   try {
     const prompt = req.body.prompt;
