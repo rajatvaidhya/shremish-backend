@@ -1,8 +1,9 @@
 const mongoose = require('mongoose');
+require("dotenv").config();
 
 async function connectToMongo() {
   try {
-    await mongoose.connect("mongodb+srv://vrinxsystem:rajat-123@cluster0.zkbwolf.mongodb.net/shremish", {
+    await mongoose.connect(process.env.MongoURI, {
       useNewUrlParser: true,
       useUnifiedTopology: true
     });
