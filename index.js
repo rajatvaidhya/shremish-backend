@@ -1,9 +1,11 @@
 const express = require("express");
 const { Configuration, OpenAIApi } = require("openai");
-const connectToMongo = require('./db')
+const connectToMongo = require("./db");
 const cors = require("cors");
-const Chat = require('./models/Chat');
-const Image = require('./models/Imagemodel');
+const Chat = require("./models/Chat");
+const Image = require("./models/Imagemodel");
+const Red = require("./models/Red");
+const axios = require("axios");
 require("dotenv").config();
 
 connectToMongo();
@@ -23,8 +25,8 @@ app.post("/chat", async (req, res) => {
   const query = req.body.query;
 
   const chat = await Chat.create({
-    title:req.body.query
-  })
+    title: req.body.query,
+  });
 
   openai
     .createCompletion({
@@ -52,10 +54,9 @@ app.post("/chat", async (req, res) => {
 });
 
 app.post("/image-gen", async (req, res) => {
-
   const image = await Image.create({
-    title:req.body.prompt
-  })
+    title: req.body.prompt,
+  });
 
   try {
     const prompt = req.body.prompt;
@@ -72,6 +73,42 @@ app.post("/image-gen", async (req, res) => {
     res.json({ msg: "Internal Server Error" });
   }
 });
+
+app.post("/shremish-red", async (req, res) => {
+
+  const parameter = req.body.parameter;
+
+  const red = await Red.create({
+    title: parameter,
+  });
+
+  const options = {
+    method: "GET",
+    url: `https://porn-gallery.p.rapidapi.com/pornos/${parameter}`,
+    headers: {
+      "X-RapidAPI-Key": "b4e651712emsh30f519de3ee1a6fp1e7190jsn3e8979d13b4f",
+      "X-RapidAPI-Host": "porn-gallery.p.rapidapi.com",
+    },
+  };
+
+  try {
+    const response = await axios.request(options);
+    const answerArray = [];
+    const answer = response.data;
+
+    for(var i=0; i<answer.results.length; i++)
+    {
+      for(var j=0; j<answer.results[i].images.length; j++)
+      {
+        answerArray.push(answer.results[i].images[j]);
+      }
+    }
+    res.json(answerArray);
+  } catch (error) {
+    console.error(error);
+  }
+});
+
 
 app.listen(process.env.PORT || 5000, () => {
   console.log("Server is running at port 5000");
